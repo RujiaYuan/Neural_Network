@@ -1,0 +1,144 @@
+---
+title: "thesis regression"
+author: "Rujia Yuan"
+date: "3/18/2022"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(stringi)
+library(stringr)
+library(rlang) 
+library(ggplot2)
+library(nnet)
+```
+
+```{r}
+getwd()
+ 
+#Setup the working directory:
+setwd("C:/Users/Jadeyuan/Desktop/sta391")
+```
+
+```{r}
+xtrain <- read.table("X_train.txt", header = FALSE, sep = "")
+```
+
+```{r}
+ytrain <- read.table("y_train.txt", header = FALSE, sep = "")
+```
+
+```{r}
+xtest <- read.table("X_test.txt", header = FALSE, sep = "")
+```
+
+```{r}
+ytest <- read.table("y_test.txt", header = FALSE, sep = "")
+```
+
+```{r}
+#create a table of postures
+knitr::kable(table(ytrain), col.names=c("Postures", "Count") )
+```
+```{r}
+y= as.matrix(ytrain)
+```
+```{r}
+dim(xtrain)
+```
+
+```{r}
+ncol(xtrain)
+```
+```{r}
+m <- multinom (y~., data = xtrain, MaxNWts=6756)
+```
+
+
+
+```{r}
+predict <- predict(m, newdata = xtest)
+```
+
+```{r}
+dim(ytest)
+```
+```{r}
+dim(predict)
+```
+```{r}
+predict1 = data.frame(predict)
+```
+
+
+
+```{r}
+ytest = data.frame(ytest)
+```
+
+
+
+for loop to see
+```{r}
+set.seed(123)
+accuracy=0
+for (i in 1:3162){
+  if (predict1[i,]==ytest[i,]){
+    accuracy=accuracy+1/3162
+  }
+}
+accuracy
+```
+```{r}
+predict1= unlist(predict1)
+```
+```{r}
+ytest = unlist(ytest)
+```
+
+```{r}
+ggplot()+geom_point(aes(ytest, predict1)) + labs(x="Actual", y ="Prediction")
+```
+
+
+
+
+
+
+do pca
+
+```{r}
+dim(xtrain)
+```
+
+
+```{r}
+results <- prcomp(xtrain, scale = TRUE)
+```
+
+```{r}
+results$rotation <- -1*results$rotation
+```
+
+```{r}
+results$rotation
+```
+
+```{r}
+results$x <- -1*results$x
+```
+
+```{r}
+head(results$x)
+```
+
+```{r}
+biplot(results, scale = 0)
+```
+

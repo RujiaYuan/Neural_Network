@@ -1,0 +1,193 @@
+---
+title: "thesis"
+author: "Rujia Yuan"
+date: "3/3/2022"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dplyr)
+library(tm)
+library(stringr)
+library(stringi)
+library(tidyr)
+library(keras)
+library(tensorflow)
+library(devtools)
+library(reticulate)
+```
+
+```{r}
+getwd()
+ 
+#Setup the working directory:
+setwd("C:/Users/Jadeyuan/Desktop/sta391")
+```
+
+```{r}
+xtrain <- read.table("X_train.txt", header = FALSE, sep = "")
+```
+
+```{r}
+ytrain <- read.table("y_train.txt", header = FALSE, sep = "")
+```
+
+```{r}
+xtest <- read.table("X_test.txt", header = FALSE, sep = "")
+```
+
+```{r}
+ytest <- read.table("y_test.txt", header = FALSE, sep = "")
+```
+
+```{r}
+xtrain <- na.omit(xtrain)
+```
+
+```{r}
+sum(is.na(xtrain))
+```
+
+```{r}
+dim(xtrain)
+```
+
+```{r}
+ytrain <- na.omit(ytrain)
+```
+
+```{r}
+sum(is.na(ytrain))
+```
+
+```{r}
+dim(ytrain)
+```
+
+```{r}
+xtest <- na.omit(xtest)
+```
+
+```{r}
+sum(is.na(xtest))
+```
+
+```{r}
+dim(xtest)
+```
+
+```{r}
+ytest <- na.omit(ytest)
+```
+
+```{r}
+sum(is.na(ytest))
+```
+
+```{r}
+dim(ytest)
+```
+
+```{r}
+ytrain <- as.data.frame(ytrain)
+```
+
+```{r}
+dim(ytrain)
+```
+
+```{r}
+set.seed(1234)
+ynew = matrix(0,nrow=7767,ncol = 12)
+for (i in 1:7767){
+  ynew[i,ytrain[i,1]] = 1
+}
+```
+
+
+
+
+```{r}
+dim(ynew)
+```
+
+
+```{r}
+model <- keras_model_sequential()
+
+model %>% 
+  layer_dense(name = "DeepLayer1",
+              units = 256,
+              activation = "relu",
+              input_shape = dim(xtrain)[2]) %>% 
+  layer_dense(name = "DeepLayer2",
+              units = 128,
+              activation = "relu") %>% 
+  layer_dense(name = "DeepLayer3",
+              units = 128,
+              activation = "relu") %>% 
+  layer_dense(name = "OutputLayer",
+              units = 12,
+              activation = "softmax")
+
+summary(model)
+```
+
+```{r}
+# compile the model
+# categorical_crossentrophy is used when we have two or more categorical variables 
+model %>% compile(loss = "categorical_crossentropy",
+                  optimizer = "adam",
+                  metrics = c("accuracy"))
+```
+
+```{r}
+newx <- as.matrix(xtrain)
+```
+
+
+```{r}
+ncol(newx)
+```
+
+```{r}
+history <- model %>% 
+  fit(newx,
+      ynew,
+      epoch = 100,
+      batch_size = 50,
+      validation_split=0.1)
+```
+
+```{r}
+plot(history)
+```
+
+```{r}
+set.seed(1234)
+ynewtest = matrix(0,nrow=3162,ncol = 12)
+for (i in 1:3162){
+  ynewtest[i,ytest[i,1]] = 1
+}
+```
+
+```{r}
+xnewtest <- as.matrix(xtest)
+```
+
+
+```{r}
+# evaluate model
+model %>% 
+  evaluate(xnewtest,
+           ynewtest)
+```
+
+
+

@@ -1,0 +1,93 @@
+---
+title: "svm"
+author: "Rujia Yuan"
+date: "4/18/2022"
+output:
+  word_document: default
+  pdf_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(stringi)
+library(stringr)
+library(rlang) 
+library(ggplot2)
+library(nnet)
+library(e1071)
+```
+
+
+```{r}
+getwd()
+ 
+#Setup the working directory:
+setwd("C:/Users/Jadeyuan/Desktop/sta391")
+```
+
+```{r}
+xtrain <- read.table("X_train.txt", header = FALSE, sep = "")
+```
+
+```{r}
+ytrain <- read.table("y_train.txt", header = FALSE, sep = "")
+```
+
+```{r}
+xtest <- read.table("X_test.txt", header = FALSE, sep = "")
+```
+
+```{r}
+ytest <- read.table("y_test.txt", header = FALSE, sep = "")
+```
+
+```{r}
+y= as.matrix(ytrain)
+```
+
+```{r}
+svm1 <- svm(y~., data = xtrain,method="C-classification")
+```
+
+```{r}
+summary(svm1)
+```
+
+```{r}
+prediction <- predict(svm1, xtest)
+```
+
+```{r}
+prediction = data.frame(prediction)
+```
+
+```{r}
+dim(prediction)
+```
+```{r}
+ytest=data.frame(ytest)
+```
+
+```{r}
+prediction
+```
+
+```{r}
+set.seed(123)
+acc=0
+for (i in 1:3162){
+  if ((prediction[i,]-ytest[i,]<0.5)&(prediction[i,]-ytest[i,]>0)){
+    acc=acc+1/3162
+  } else if ((ytest[i,]-prediction[i,]<0.5)&(ytest[i,]-prediction[i,]>0)){
+    acc=acc+1/3162
+  }
+}
+acc
+```
+
+
+
